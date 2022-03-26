@@ -1,4 +1,4 @@
-port module PhotoGroove exposing (Msg(..), initialModel, main, photoDecoder, update)
+port module PhotoGroove exposing (Msg(..), initialModel, main, photoDecoder, update, view)
 
 import Browser
 import Html exposing (..)
@@ -27,7 +27,9 @@ type alias Photo =
     , title : String
     }
 
+
 port setFilters : FilterOptions -> Cmd msg
+
 
 type alias FilterOptions =
     { url : String
@@ -167,7 +169,7 @@ update msg model =
 
         ClickedPhoto url ->
             applyFilters { model | status = selectUrl url model.status }
-            
+
         ClickedSize size ->
             ( { model | chosenSize = size }, Cmd.none )
 
@@ -194,9 +196,9 @@ update msg model =
                         { model
                             | status =
                                 case List.head photos of
-                                    Just photo -> 
+                                    Just photo ->
                                         Loaded photos photo.url
-                                        
+
                                     Nothing ->
                                         Loaded [] ""
                         }
@@ -215,6 +217,7 @@ update msg model =
 
         SlidNoise noise ->
             applyFilters { model | noise = noise }
+
 
 applyFilters : Model -> ( Model, Cmd Msg )
 applyFilters model =
@@ -237,6 +240,7 @@ applyFilters model =
 
         Errored _ ->
             ( model, Cmd.none )
+
 
 rangeSlider : List (Attribute msg) -> List (Html msg) -> Html msg
 rangeSlider attrs children =

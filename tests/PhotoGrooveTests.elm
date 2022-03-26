@@ -4,8 +4,10 @@ import Expect
 import Fuzz exposing (int, string)
 import Json.Decode exposing (decodeValue)
 import Json.Encode as Encode
-import PhotoGroove
+import PhotoGroove exposing (Msg(..), initialModel, update)
 import Test exposing (..)
+import Test.Html.Query as Query
+import Test.Html.Selector exposing (tag)
 
 
 decoderTest : Test
@@ -18,11 +20,26 @@ decoderTest =
                 |> Encode.object
                 |> decodeValue PhotoGroove.photoDecoder
                 |> Result.map .title
-                |> Expect.equal (Ok "(untitled)")
+                |> Expect.equal (Ok "(não foi achado)")
 
 
 slidHueSetsHue : Test
 slidHueSetsHue =
     fuzz int "SlidHue sets the hue" <|
         \amount ->
-            Expect.equal amount 1
+            initialModel
+                |> update (SlidHue amount)
+                |> Tuple.first
+                |> .hue
+                |> Expect.equal amount
+
+
+noPhotosNoThumbnails : Test
+noPhotosNoThumbnails =
+    test "No thumbnails render when there are no photos to render." <|
+        \_ ->
+            initialModel
+                |> PhotoGroove.view
+                |> Query.fromHtml
+                |> Query.findAll [ tag "img" ]
+                |> Query.count (Expect.equal 0)
